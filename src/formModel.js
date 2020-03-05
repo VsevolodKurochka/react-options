@@ -1,10 +1,12 @@
-import {checkIsFilled} from './services/checkIsFilled';
+import {checkIsFilled} from './utils/checkIsFilled';
+import {removeLastSlash} from './utils/removeLastSlash';
 
 const formModel = () => [
     {
         name: 'currentSite',
         label: 'Current Site',
         value: '',
+        defaultParse: value => removeLastSlash(value),
         validators: [
             {
                 isValid: value => checkIsFilled(value),
@@ -16,6 +18,7 @@ const formModel = () => [
         name: 'newSite',
         label: 'New Site',
         value: '',
+        defaultParse: value => removeLastSlash(value),
         validators: [
             {
                 isValid: value => checkIsFilled(value),

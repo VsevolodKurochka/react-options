@@ -8,11 +8,14 @@ const useForm = (initModel, onSubmit) => {
         inputs.forEach((input) => {
             if (input.name === name) {
                 input.value = event.target.value;
+                parseInput(input);
                 validateInput(input);
             }
         });
         setInputs([...inputs]);
     };
+
+    const parseInput = input => input.value = input.defaultParse ? input.defaultParse(input.value) : input.value;
 
     const validateInput = (input) => {
         let alert = null;
