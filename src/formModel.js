@@ -1,5 +1,4 @@
 import {checkIsFilled} from './utils/checkIsFilled';
-import {removeLastSlash} from './utils/removeLastSlash';
 import {isValidURL} from './utils/isValidURL';
 
 const formModel = () => [
@@ -7,7 +6,6 @@ const formModel = () => [
         name: 'currentSite',
         label: 'Current Site',
         value: '',
-        defaultParse: value => removeLastSlash(value),
         validators: [
             {
                 isValid: value => checkIsFilled(value),
@@ -23,7 +21,6 @@ const formModel = () => [
         name: 'newSite',
         label: 'New Site',
         value: '',
-        defaultParse: value => removeLastSlash(value),
         validators: [
             {
                 isValid: value => checkIsFilled(value),

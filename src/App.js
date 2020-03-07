@@ -10,11 +10,12 @@ import {useStyles} from './hooks/useStyles';
 import {formModel} from './formModel';
 import {createText} from './utils/createText';
 import {createSites} from './utils/createSites';
+import {removeLastSlash} from './utils/removeLastSlash';
 
 function App() {
   const createSQL = () => {
     const sites = createSites(inputs);
-    setText(createText(sites.currentSite, sites.newSite));
+    setText(createText(removeLastSlash(sites.currentSite), removeLastSlash(sites.newSite)));
   };
 
   const copyText = () => {
