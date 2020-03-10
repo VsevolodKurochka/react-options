@@ -31,10 +31,13 @@ const useForm = (initModel, onSubmit) => {
         inputs.some(input => input.alert) ? setInputs([...inputs]) : onSubmit();
     };
 
+    const clearAllInputs = () => inputs.forEach(input => input.value = '');
+
     return {
         inputs,
         handleChange,
-        handleSubmit
+        handleSubmit,
+        clearAllInputs
     };
 };
 
