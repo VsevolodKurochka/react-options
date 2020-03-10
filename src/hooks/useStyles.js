@@ -16,7 +16,15 @@ const useStyles = makeStyles((theme) => ({
         padding: theme.spacing(2),
         border: `1px solid ${theme.palette.grey[400]}`,
         marginBottom: theme.spacing(1),
-        outline: 'none'
+        outline: 'none',
+        resize: 'none',
+        cursor: 'default',
+        marginTop: theme.spacing(2)
+    },
+    ellipsis: {
+        textOverflow: 'ellipsis',
+        overflow: 'hidden',
+        whiteSpace: 'noWrap'
     }
 }));
 

@@ -1,83 +1,88 @@
-import React, {useState} from 'react';
-import Button from '@material-ui/core/Button';
+import React, {useState, useEffect, useContext} from 'react';
 import Container from '@material-ui/core/Container';
-import TextField from '@material-ui/core/TextField';
-import FormControl from '@material-ui/core/FormControl';
-import FormHelperText from '@material-ui/core/FormHelperText';
-import Typography from '@material-ui/core/Typography';
 import {useForm} from './hooks/useForm';
 import {useStyles} from './hooks/useStyles';
 import {formModel} from './formModel';
 import {createText} from './utils/createText';
 import {createSites} from './utils/createSites';
 import {removeLastSlash} from './utils/removeLastSlash';
+import {FirebaseContext} from './firebase';
+import 'firebase/firestore';
+import ExistingQueries from './sections/existingQueries';
+import AddSQL from './sections/addSQL';
 
 function App() {
-  const createSQL = () => {
-    const sites = createSites(inputs);
-    setText(createText(removeLastSlash(sites.currentSite), removeLastSlash(sites.newSite)));
-  };
+    const firebase = useContext(FirebaseContext);
 
-  const copyText = () => {
-    const textArea = document.getElementById('custom-text');
-    textArea.select();
-    textArea.setSelectionRange(0, 99999);
-    document.execCommand('copy');
-  };
+    const createSQL = () => {
+        const {currentSite, newSite} = createSites(inputs);
+        queries.doc().set({currentSite: removeLastSlash(currentSite), newSite: removeLastSlash(newSite)});
+        clearAllInputs();
+        createTextForTextarea(removeLastSlash(currentSite), removeLastSlash(newSite));
+        return getQuery();
+    };
 
-  const [text, setText] = useState('');
-  const {inputs, handleSubmit, handleChange} = useForm(formModel, createSQL);
-  const classes = useStyles();
+    const classes = useStyles();
+    const [list, setList] = useState([]);
+    const [text, setText] = useState('');
+    const {inputs, handleSubmit, handleChange, clearAllInputs} = useForm(formModel, createSQL);
+    const queries = firebase.firestore().collection('queries');
 
-  return (
+    const copyText = () => {
+        const textArea = document.getElementById('custom-text');
+        textArea.select();
+        textArea.setSelectionRange(0, 99999);
+        document.execCommand('copy');
+    };
+
+    async function getQuery() {
+        const response = await queries.get();
+        const items = response.docs.map((item) => ({
+          id: item.id,
+          ...item.data()
+        }));
+        setList(items);
+    }
+
+    const copyQuery = (id, index) => {
+        const {currentSite, newSite} = list[index];
+        createTextForTextarea(currentSite, newSite);
+    };
+
+    const deleteQuery = (id) => {
+        queries.doc(id).delete().then(() => getQuery());
+    };
+
+    const createTextForTextarea = async (currentSite, newSite) => {
+        const text = createText(currentSite, newSite);
+        await setText(text);
+        copyText();
+    };
+
+    useEffect(() => {
+        getQuery();
+    }, []);
+
+    return (
       <Container maxWidth={'lg'} className={classes.root}>
-        <form noValidate autoComplete="off" onSubmit={(e) => handleSubmit(e)}>
-          {
-            inputs && inputs.map((input, index) =>
-                <FormControl
-                  key={index}
-                  fullWidth
-                  error={Boolean(input.alert)}
-                  className={classes.margin}>
-                  <TextField
-                      required
-                      label={input.label}
-                      variant="outlined"
-                      value={input.value}
-                      error={Boolean(input.alert)}
-                      onChange={(event) => handleChange(input.name, event)}
-                  />
-                  {Boolean(input.alert) ? (
-                      <FormHelperText>{input.alert}</FormHelperText>
-                  ) : null}
-                </FormControl>
-          )}
-          <FormControl className={classes.margin}>
-            <Button type="submit" variant="contained" color="primary" size="large">
-              Create SQL
-            </Button>
-          </FormControl>
-          { text ? (
-              <>
-                <Typography variant="h3" component="h3" gutterBottom>
-                  SQL query
-                </Typography>
-                <textarea
-                    readOnly={true}
-                    className={classes.text}
-                    id={'custom-text'}
-                    value={text}
-                    resize={'none'}
-                    rows={4}
-                />
-                <Button variant="contained" color="primary" size="large" onClick={() => copyText()}>
-                  Copy text
-                </Button>
-              </>
-          ) : null}
-        </form>
+        <AddSQL
+            inputs={inputs}
+            handleChange={handleChange}
+            handleSubmit={handleSubmit}
+        />
+        <ExistingQueries
+            list={list}
+            copyQuery={copyQuery}
+            deleteQuery={deleteQuery}
+        />
+          <textarea
+              id="custom-text"
+              value={text}
+              readOnly={true}
+              className={classes.text}
+          />
       </Container>
-  );
+    );
 }
 
 export default App;

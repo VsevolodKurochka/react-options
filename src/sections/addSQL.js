@@ -13,14 +13,15 @@ const AddSQL = ({inputs, handleSubmit, handleChange}) => {
         <form
             noValidate
             autoComplete="off"
-            onSubmit={(e) => handleSubmit(e)}>
+            onSubmit={(e) => handleSubmit(e)}
+            className={classes.margin}>
             {
                 inputs && inputs.map((input, index) =>
                     <FormControl
                         key={index}
                         fullWidth
                         error={Boolean(input.alert)}
-                        className={classes.margin}>
+                        margin="normal">
                         <TextField
                             required
                             label={input.label}
